@@ -9,11 +9,16 @@ variable "public_subnets" {
 }
 
 variable "azs" {
-  description = "List of availability zones"
+  description = "Availability Zones"
   type        = list(string)
 }
 
 variable "project" {
-  description = "Name prefix for resources"
+  description = "Project name prefix"
+  type        = string
+}
+
+variable "region" {
+  description = "AWS region"
   type        = string
 }
