@@ -1,11 +1,16 @@
 module "vpc" {
-  source = "./vpc"
+  source         = "./vpc"
 
   region         = var.region
   vpc_cidr       = var.vpc_cidr
   public_subnets = var.public_subnets
   azs            = var.azs
   project        = var.project
+  cluster_name   = var.cluster_name         # ✅ REQUIRED for subnet tags
+}
+
+module "iam" {
+  source = "./iam"
 }
 
 module "eks" {
@@ -15,8 +20,5 @@ module "eks" {
   vpc_id          = module.vpc.vpc_id
   subnets         = module.vpc.public_subnet_ids
   project         = var.project
-}
-
-module "iam" {
-  source = "./iam"
+  iam_role_arn    = module.iam.eks_node_role_arn
 }
