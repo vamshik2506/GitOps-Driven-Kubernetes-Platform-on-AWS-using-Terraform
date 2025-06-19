@@ -51,9 +51,3 @@ terraform-eks-platform/
 
 ---
 
-## 🧪 Getting Started
-1. Clone the repo
-2. Update your `terraform.tfvars`
-3. Run `terraform init && apply`
-4. Set up ArgoCD and push manifests
-5. Connect CI/CD pipelines
