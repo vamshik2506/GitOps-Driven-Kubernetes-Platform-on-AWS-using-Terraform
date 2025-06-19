@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-infra
+  namespace: argocd
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: https://github.com/vamshik2506/GitOps-Driven-Kubernetes-Platform-on-AWS-using-Terraform.git
+    path: terraform
+    targetRevision: main
+  project: default
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+EOF
