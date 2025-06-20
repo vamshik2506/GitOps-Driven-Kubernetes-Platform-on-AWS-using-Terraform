@@ -9,13 +9,6 @@ module "vpc" {
   cluster_name   = var.cluster_name         # ✅ REQUIRED for subnet tags
 }
 
-module "iam" {
-  source = "./iam"
-
-  cluster_name = module.eks.cluster_name
-}
-
-
 module "eks" {
   source          = "./eks"
   cluster_name    = var.cluster_name
@@ -24,4 +17,10 @@ module "eks" {
   subnets         = module.vpc.public_subnet_ids
   project         = var.project
   iam_role_arn    = module.iam.eks_node_role_arn
+}
+
+module "iam" {
+  source = "./iam"
+
+  cluster_name = module.eks.cluster_name
 }
