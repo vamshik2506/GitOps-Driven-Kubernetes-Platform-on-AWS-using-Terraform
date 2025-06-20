@@ -24,3 +24,9 @@ module "iam" {
 
   cluster_name = module.eks.cluster_name
 }
+<<<<<<< HEAD
+=======
+module "argocd" {
+  source = "./argocd"
+}
+>>>>>>> cf9dd03 (Cleaned .terraform and updated Git ignore rules)
