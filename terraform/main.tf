@@ -11,7 +11,10 @@ module "vpc" {
 
 module "iam" {
   source = "./iam"
+
+  cluster_name = module.eks.cluster_name
 }
+
 
 module "eks" {
   source          = "./eks"
