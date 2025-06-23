@@ -1,12 +1,11 @@
 module "vpc" {
   source         = "./vpc"
-
   region         = var.region
   vpc_cidr       = var.vpc_cidr
   public_subnets = var.public_subnets
   azs            = var.azs
   project        = var.project
-  cluster_name   = var.cluster_name         # ✅ REQUIRED for subnet tags
+  cluster_name   = var.cluster_name
 }
 
 module "eks" {
@@ -20,13 +19,12 @@ module "eks" {
 }
 
 module "iam" {
-  source = "./iam"
-
+  source       = "./iam"
   cluster_name = module.eks.cluster_name
 }
-<<<<<<< HEAD
-=======
 module "argocd" {
-  source = "./argocd"
+  source           = "./argocd"
+  cluster_name     = module.eks.cluster_name
+  cluster_endpoint = module.eks.cluster_endpoint
+  cluster_ca       = module.eks.cluster_certificate_authority_data
 }
->>>>>>> cf9dd03 (Cleaned .terraform and updated Git ignore rules)
