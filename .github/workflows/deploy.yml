@@ -31,7 +31,34 @@ jobs:
       - name: Configure kubectl
         run: |
           aws eks --region ap-south-1 update-kubeconfig --name gitops-eks-cluster
-          kubectl get nodes
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Patch aws-auth ConfigMap
+        run: |
+          cat <<EOF > aws-auth.yaml
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: aws-auth
+            namespace: kube-system
+          data:
+            mapRoles: |
+             - rolearn: arn:aws:iam::044854092841:role/vamshieksnoderole
+                username: system:node:{{EC2PrivateDNSName}}
+                groups:
+                  - system:bootstrappers
+                  - system:nodes
+          EOF
+
+          kubectl apply -f aws-auth.yaml
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Verify EKS Nodes
+        run: kubectl get nodes
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
