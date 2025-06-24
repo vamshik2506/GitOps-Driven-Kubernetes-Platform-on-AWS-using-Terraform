@@ -25,8 +25,6 @@ resource "kubernetes_namespace" "argocd" {
   metadata {
     name = "argocd"
   }
-
-  depends_on = [data.aws_eks_cluster.cluster]
 }
 
 resource "helm_release" "argocd" {
