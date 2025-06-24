@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   source:
     repoURL: https://github.com/vamshik2506/GitOps-Driven-Kubernetes-Platform-on-AWS-using-Terraform.git
-    path: terraform
+    path: manifests
     targetRevision: main
   project: default
   syncPolicy:
