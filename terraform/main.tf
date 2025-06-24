@@ -7,7 +7,10 @@ module "vpc" {
   project        = var.project
   cluster_name   = var.cluster_name
 }
-
+module "iam" {
+  source       = "./iam"
+  cluster_name = module.eks.cluster_name
+}
 module "eks" {
   source          = "./eks"
   cluster_name    = var.cluster_name
@@ -18,26 +21,18 @@ module "eks" {
   iam_role_arn    = module.iam.eks_node_role_arn
 }
 
-module "iam" {
-  source       = "./iam"
-  cluster_name = module.eks.cluster_name
-}
 module "argocd" {
   source           = "./argocd"
   cluster_name     = module.eks.cluster_name
   cluster_endpoint = module.eks.cluster_endpoint
   cluster_ca       = module.eks.cluster_certificate_authority_data
-
-  depends_on = [module.eks]
 }
 
-# If you have a monitoring module:
 module "monitoring" {
   source           = "./monitoring"
   cluster_name     = module.eks.cluster_name
   cluster_endpoint = module.eks.cluster_endpoint
   cluster_ca       = module.eks.cluster_certificate_authority_data
-
-  depends_on = [module.eks]
 }
+
 
