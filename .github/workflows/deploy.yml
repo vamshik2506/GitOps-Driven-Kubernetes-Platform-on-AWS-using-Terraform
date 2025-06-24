@@ -50,7 +50,7 @@ jobs:
                   - system:bootstrappers
                   - system:nodes
             mapUsers: |
-              - userarn: arn:aws:iam::044854092841:user/<YOUR-AWS-USER>
+              - userarn: arn:aws:iam::044854092841:user/krishna
                 username: github-runner
                 groups:
                   - system:masters
