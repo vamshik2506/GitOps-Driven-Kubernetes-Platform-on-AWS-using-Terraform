@@ -49,5 +49,4 @@ terraform-eks-platform/
 - TLS via ACM + custom domain
 - CI/CD integration with auto deploy
 
----
 
