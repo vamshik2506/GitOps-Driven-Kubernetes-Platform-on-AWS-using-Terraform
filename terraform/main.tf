@@ -28,3 +28,9 @@ module "argocd" {
   cluster_endpoint = module.eks.cluster_endpoint
   cluster_ca       = module.eks.cluster_certificate_authority_data
 }
+module "monitoring" {
+  source           = "./monitoring"
+  cluster_name     = module.eks.cluster_name
+  cluster_endpoint = module.eks.cluster_endpoint
+  cluster_ca       = module.eks.cluster_certificate_authority_data
+}
