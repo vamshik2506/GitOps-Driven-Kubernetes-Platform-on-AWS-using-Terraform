@@ -5,33 +5,38 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  eks-create:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
+
       - name: Terraform Init
         run: terraform init
-        working-directory: terraform/
 
-      - name: Terraform Apply
+      - name: Terraform Apply (EKS only)
+        run: terraform apply -auto-approve -target=module.eks
+
+      - name: Configure kubectl
+        run: |
+          aws eks --region ap-south-1 update-kubeconfig --name gitops-eks-cluster
+          kubectl get nodes
+
+  apply-k8s-resources:
+    needs: eks-create
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply (All resources)
         run: terraform apply -auto-approve
-        working-directory: terraform/
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name gitops-eks-cluster --region ap-south-1
-
-      - name: Apply ArgoCD App
-        run: kubectl apply -f manifests/argocd-app.yaml
