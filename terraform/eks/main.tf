@@ -1,9 +1,7 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
- manage_aws_auth_configmap = var.manage_aws_auth_configmap
-  aws_auth_users             = var.aws_auth_users
-}
+
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
   subnet_ids      = var.subnets
@@ -16,16 +14,10 @@ module "eks" {
   iam_role_arn        = var.iam_role_arn
 
   # ✅ Enable Terraform management of aws-auth ConfigMap
-  manage_aws_auth_configmap = true
+  manage_aws_auth_configmap = var.manage_aws_auth_configmap
 
   # ✅ Automatically map GitHub Actions user to system:masters
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::044854092841:user/krishna"
-      username = "krishna"
-      groups   = ["system:masters"]
-    }
-  ]
+  aws_auth_users = var.aws_auth_users
 
   eks_managed_node_groups = {
     default = {
