@@ -13,8 +13,10 @@ module "eks" {
   authentication_mode = "API"
   iam_role_arn        = var.iam_role_arn
 
+  # ✅ Enable Terraform management of aws-auth ConfigMap
   manage_aws_auth_configmap = true
 
+  # ✅ Automatically map GitHub Actions user to system:masters
   aws_auth_users = [
     {
       userarn  = "arn:aws:iam::044854092841:user/krishna"
