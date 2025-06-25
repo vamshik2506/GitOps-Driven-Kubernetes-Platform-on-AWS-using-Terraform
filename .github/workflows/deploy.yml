@@ -5,10 +5,10 @@ on:
     branches: [main]
 
 jobs:
-  eks-create:
+  deploy-infrastructure:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
       - name: 🧹 Clean Terraform Cache
@@ -18,53 +18,43 @@ jobs:
 
       - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6  # or your preferred version
 
-      - name: Terraform Init
-        run: terraform init -upgrade
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: 📦 Terraform Init
+        run: terraform init
         working-directory: terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: 🚀 Terraform Apply (EKS only)
-        run: terraform apply -auto-approve -target=module.eks
+      - name: 🚀 Terraform Apply (Full stack)
+        run: terraform apply -auto-approve
         working-directory: terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: ☁️ Configure kubectl for EKS
+      - name: ☁️ Update kubeconfig for EKS
+        run: aws eks --region ap-south-1 update-kubeconfig --name gitops-eks-cluster
+
+      - name: ✅ Verify EKS Nodes
+        run: kubectl get nodes
+
+  # Optional: Apply Kubernetes manifests via ArgoCD or kubectl
+  apply-k8s-resources:
+    needs: deploy-infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☁️ Update kubeconfig for EKS
         run: aws eks --region ap-south-1 update-kubeconfig --name gitops-eks-cluster
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: ✅ Verify EKS Nodes
-        run: kubectl get nodes
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-  apply-k8s-resources:
-    needs: eks-create
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-
-      - name: ⚙️ Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: 📦 Terraform Init (All resources)
-        run: terraform init
-        working-directory: terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: 🚀 Terraform Apply (All resources)
-        run: terraform apply -auto-approve
-        working-directory: terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: 🧪 Verify ArgoCD or Deploy App
+        run: kubectl get all -n argocd  # or your ArgoCD app logic here
