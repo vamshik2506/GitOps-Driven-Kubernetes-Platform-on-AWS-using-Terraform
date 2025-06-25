@@ -22,6 +22,27 @@ module "eks" {
   subnet_ids      = module.vpc.public_subnet_ids
   iam_role_arn    = module.iam.eks_node_role_arn
 
+  cluster_endpoint_public_access  = true
+  cluster_endpoint_private_access = true
+  authentication_mode             = "API"
+
+  eks_managed_node_groups = {
+    ...
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = var.project
+  }
+}
+module "aws_auth" {
+  source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
+  version = "20.8.5"
+
+  depends_on = [module.eks]
+
+  eks_cluster_name = module.eks.cluster_name
+
   manage_aws_auth_configmap = true
 
   aws_auth_users = [
@@ -31,29 +52,7 @@ module "eks" {
       groups   = ["system:masters"]
     }
   ]
-
-  cluster_endpoint_public_access  = true
-  cluster_endpoint_private_access = true
-  authentication_mode             = "API"
-
-  eks_managed_node_groups = {
-    default = {
-      desired_size    = 2
-      max_size        = 3
-      min_size        = 1
-      instance_types  = ["t3.medium"]
-      capacity_type   = "ON_DEMAND"
-      iam_role_arn    = module.iam.eks_node_role_arn
-      security_groups = [aws_security_group.eks_node_sg.id]
-    }
-  }
-
-  tags = {
-    Environment = "dev"
-    Project     = var.project
-  }
 }
-
 module "argocd" {
   source           = "./argocd"
   cluster_name     = module.eks.cluster_name
