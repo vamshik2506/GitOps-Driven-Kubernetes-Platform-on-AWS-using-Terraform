@@ -24,6 +24,8 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
 
+  authentication_mode = "API_AND_CONFIG_MAP"
+
   manage_aws_auth_configmap = true
 
   aws_auth_users = [
@@ -31,14 +33,6 @@ module "eks" {
       userarn  = "arn:aws:iam::044854092841:user/krishna"
       username = "krishna"
       groups   = ["system:masters"]
-    }
-  ]
-
-  aws_auth_roles = [
-    {
-      rolearn  = module.iam.eks_node_role_arn
-      username = "system:node:{{EC2PrivateDNSName}}"
-      groups   = ["system:bootstrappers", "system:nodes"]
     }
   ]
 
@@ -58,7 +52,6 @@ module "eks" {
     Project     = var.project
   }
 }
-
 
 module "argocd" {
   source           = "./argocd"
