@@ -1,4 +1,3 @@
-
 module "vpc" {
   source         = "./vpc"
   region         = var.region
@@ -20,11 +19,9 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
   vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.public_subnet_ids
-  project         = var.project
+  subnet_ids      = module.vpc.public_subnet_ids
   iam_role_arn    = module.iam.eks_node_role_arn
 
-  # New valid arguments
   manage_aws_auth_configmap = true
 
   aws_auth_users = [
@@ -37,17 +34,16 @@ module "eks" {
 
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
-
-  authentication_mode = "API"
+  authentication_mode             = "API"
 
   eks_managed_node_groups = {
     default = {
-      desired_size   = 2
-      max_size       = 3
-      min_size       = 1
-      instance_types = ["t3.medium"]
-      capacity_type  = "ON_DEMAND"
-      iam_role_arn   = module.iam.eks_node_role_arn
+      desired_size    = 2
+      max_size        = 3
+      min_size        = 1
+      instance_types  = ["t3.medium"]
+      capacity_type   = "ON_DEMAND"
+      iam_role_arn    = module.iam.eks_node_role_arn
       security_groups = [aws_security_group.eks_node_sg.id]
     }
   }
@@ -57,7 +53,6 @@ module "eks" {
     Project     = var.project
   }
 }
-
 
 module "argocd" {
   source           = "./argocd"
