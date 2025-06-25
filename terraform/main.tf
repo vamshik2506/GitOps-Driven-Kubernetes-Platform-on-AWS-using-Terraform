@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 module "vpc" {
   source         = "./vpc"
   region         = var.region
@@ -7,10 +11,12 @@ module "vpc" {
   project        = var.project
   cluster_name   = var.cluster_name
 }
+
 module "iam" {
   source       = "./iam"
-  cluster_name = module.eks.cluster_name
+  cluster_name = var.cluster_name
 }
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
@@ -19,7 +25,6 @@ module "eks" {
   cluster_version = "1.28"
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.public_subnet_ids
-
   authentication_mode = "API"
   iam_role_arn        = module.iam.eks_node_role_arn
 
@@ -53,7 +58,6 @@ module "eks" {
   }
 }
 
-
 module "argocd" {
   source           = "./argocd"
   cluster_name     = module.eks.cluster_name
@@ -67,5 +71,3 @@ module "monitoring" {
   cluster_endpoint = module.eks.cluster_endpoint
   cluster_ca       = module.eks.cluster_certificate_authority_data
 }
-
-
