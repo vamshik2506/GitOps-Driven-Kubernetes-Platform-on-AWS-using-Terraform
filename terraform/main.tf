@@ -13,7 +13,17 @@ module "iam" {
 }
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.13.0"
+    version = "19.21.0"
+
+  manage_aws_auth_configmap = true
+
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::044854092841:user/krishna"
+      username = "krishna"
+      groups   = ["system:masters"]
+    }
+  ]
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
