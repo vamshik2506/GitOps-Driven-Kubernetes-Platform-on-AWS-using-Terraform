@@ -15,13 +15,23 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.21.0"
 
-  cluster_name    = "gitops-eks-cluster"
-  cluster_version = "1.29"
+  cluster_name    = var.cluster_name
+  cluster_version = var.cluster_version
 
-  subnet_ids = module.vpc.private_subnets
   vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
 
-  enable_irsa = true
+  cluster_endpoint_public_access  = true
+  cluster_endpoint_private_access = true
+
+  eks_managed_node_groups = {
+    default = {
+      instance_types = ["t3.medium"]
+      desired_size   = 2
+      min_size       = 1
+      max_size       = 3
+    }
+  }
 
   manage_aws_auth_configmap = true
 
@@ -32,32 +42,13 @@ module "eks" {
       groups   = ["system:masters"]
     }
   ]
-}
-
-  cluster_name    = var.cluster_name
-  cluster_version = var.cluster_version
-  vpc_id          = module.vpc.vpc_id
-  subnet_ids      = module.vpc.public_subnet_ids
-
-  cluster_endpoint_public_access  = true
-  cluster_endpoint_private_access = true
-
-
-  eks_managed_node_groups = {
-    default = {
-      desired_size   = 2
-      max_size       = 3
-      min_size       = 1
-      instance_types = ["t3.medium"]
-      capacity_type  = "ON_DEMAND"
-    }
-  }
 
   tags = {
     Environment = "dev"
-    Project     = var.project
+    Project     = "gitops"
   }
 }
+
 
 module "argocd" {
   source           = "./argocd"
