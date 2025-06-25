@@ -33,7 +33,6 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
 
-  authentication_mode = "API_AND_CONFIG_MAP"
 
   eks_managed_node_groups = {
     default = {
