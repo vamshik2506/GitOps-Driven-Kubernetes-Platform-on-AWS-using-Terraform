@@ -13,26 +13,17 @@ module "iam" {
 }
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.3"
+  version = "~> 20.13.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.public_subnet_ids
-  iam_role_arn    = module.iam.eks_node_role_arn
 
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
 
-  manage_aws_auth_configmap = true
-
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::044854092841:user/krishna"
-      username = "krishna"
-      groups   = ["system:masters"]
-    }
-  ]
+  authentication_mode = "API_AND_CONFIG_MAP"
 
   eks_managed_node_groups = {
     default = {
@@ -41,7 +32,6 @@ module "eks" {
       min_size       = 1
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
-      iam_role_arn   = module.iam.eks_node_role_arn
     }
   }
 
