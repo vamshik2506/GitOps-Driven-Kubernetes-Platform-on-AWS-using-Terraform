@@ -42,11 +42,6 @@ module "eks" {
     }
   ]
 }
-  tags = {
-    Environment = "dev"
-    Project     = "gitops"
-  }
-}
 
 
 module "argocd" {
