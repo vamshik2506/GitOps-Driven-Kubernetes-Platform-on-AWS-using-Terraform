@@ -7,11 +7,6 @@ module "vpc" {
   project        = var.project
   cluster_name   = var.cluster_name
 }
-
-module "iam" {
-  source       = "./iam"
-  cluster_name = var.cluster_name
-}
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
@@ -25,6 +20,16 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
   authentication_mode             = "API"
+
+  manage_aws_auth_configmap = true
+
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::044854092841:user/krishna"
+      username = "krishna"
+      groups   = ["system:masters"]
+    }
+  ]
 
   eks_managed_node_groups = {
     default = {
@@ -42,25 +47,6 @@ module "eks" {
     Project     = var.project
   }
 }
-module "aws_auth" {
-  source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
-  version = "20.8.5"
-
-  depends_on = [module.eks]
-
-  cluster_name = module.eks.cluster_name
-
-  manage_aws_auth_configmap = true
-
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::044854092841:user/krishna"
-      username = "krishna"
-      groups   = ["system:masters"]
-    }
-  ]
-}
-
 module "argocd" {
   source           = "./argocd"
   cluster_name     = module.eks.cluster_name
