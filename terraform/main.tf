@@ -42,14 +42,16 @@ module "eks" {
     Project     = var.project
   }
 }
-
 module "aws_auth" {
   source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
   version = "20.8.5"
 
   depends_on = [module.eks]
-cluster_name = module.eks.cluster_name
+
+  eks_cluster_name = module.eks.cluster_name
+
   manage_aws_auth_configmap = true
+
   aws_auth_users = [
     {
       userarn  = "arn:aws:iam::044854092841:user/krishna"
