@@ -11,7 +11,6 @@ module "iam" {
   source       = "./iam"
   cluster_name = var.cluster_name
 }
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
@@ -26,6 +25,7 @@ module "eks" {
   cluster_endpoint_private_access = true
 
   manage_aws_auth_configmap = true
+  create_cloudwatch_log_group = false  # 👈 ADD THIS LINE
 
   aws_auth_users = [
     {
