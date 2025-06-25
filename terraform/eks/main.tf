@@ -1,7 +1,9 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
-
+ manage_aws_auth_configmap = var.manage_aws_auth_configmap
+  aws_auth_users             = var.aws_auth_users
+}
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
   subnet_ids      = var.subnets
