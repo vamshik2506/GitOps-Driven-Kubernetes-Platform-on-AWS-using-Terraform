@@ -7,6 +7,11 @@ module "vpc" {
   project        = var.project
   cluster_name   = var.cluster_name
 }
+module "iam" {
+  source       = "./iam"
+  cluster_name = var.cluster_name
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
