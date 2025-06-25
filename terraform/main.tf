@@ -27,7 +27,14 @@ module "eks" {
   authentication_mode             = "API"
 
   eks_managed_node_groups = {
-    ...
+    default = {
+      desired_size   = 2
+      max_size       = 3
+      min_size       = 1
+      instance_types = ["t3.medium"]
+      capacity_type  = "ON_DEMAND"
+      iam_role_arn   = module.iam.eks_node_role_arn
+    }
   }
 
   tags = {
@@ -35,6 +42,7 @@ module "eks" {
     Project     = var.project
   }
 }
+
 module "aws_auth" {
   source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
   version = "20.8.5"
