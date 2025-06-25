@@ -33,15 +33,16 @@ module "eks" {
     }
   }
 
-  manage_aws_auth_configmap = true
+ manage_aws_auth_configmap = true
 
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::044854092841:user/krishna"
-      username = "krishna"
-      groups   = ["system:masters"]
-    }
-  ]
+aws_auth_users = [
+  {
+    userarn  = "arn:aws:iam::044854092841:user/krishna"
+    username = "krishna"
+    groups   = ["system:masters"]
+  }
+]
+
 
   tags = {
     Environment = "dev"
