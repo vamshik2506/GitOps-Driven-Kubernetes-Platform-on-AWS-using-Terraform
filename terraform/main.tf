@@ -25,13 +25,20 @@ module "eks" {
   cluster_endpoint_private_access = true
 
   manage_aws_auth_configmap = true
-  create_cloudwatch_log_group = false  # 👈 ADD THIS LINE
 
   aws_auth_users = [
     {
       userarn  = "arn:aws:iam::044854092841:user/krishna"
       username = "krishna"
       groups   = ["system:masters"]
+    }
+  ]
+
+  aws_auth_roles = [
+    {
+      rolearn  = module.iam.eks_node_role_arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups   = ["system:bootstrappers", "system:nodes"]
     }
   ]
 
@@ -51,6 +58,7 @@ module "eks" {
     Project     = var.project
   }
 }
+
 
 module "argocd" {
   source           = "./argocd"
