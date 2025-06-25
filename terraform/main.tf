@@ -13,7 +13,15 @@ module "iam" {
 }
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-    version = "19.21.0"
+  version = "19.21.0"
+
+  cluster_name    = "gitops-eks-cluster"
+  cluster_version = "1.29"
+
+  subnet_ids = module.vpc.private_subnets
+  vpc_id     = module.vpc.vpc_id
+
+  enable_irsa = true
 
   manage_aws_auth_configmap = true
 
@@ -24,6 +32,7 @@ module "eks" {
       groups   = ["system:masters"]
     }
   ]
+}
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
