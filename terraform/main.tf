@@ -48,7 +48,7 @@ module "aws_auth" {
 
   depends_on = [module.eks]
 
-  eks_cluster_name = module.eks.cluster_name
+  cluster_name = module.eks.cluster_name
 
   manage_aws_auth_configmap = true
 
@@ -60,6 +60,7 @@ module "aws_auth" {
     }
   ]
 }
+
 module "argocd" {
   source           = "./argocd"
   cluster_name     = module.eks.cluster_name
