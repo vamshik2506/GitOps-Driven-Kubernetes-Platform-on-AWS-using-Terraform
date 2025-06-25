@@ -19,6 +19,17 @@ module "eks" {
   subnets         = module.vpc.public_subnet_ids
   project         = var.project
   iam_role_arn    = module.iam.eks_node_role_arn
+
+  # ✅ Pass these to the real module
+  manage_aws_auth_configmap = true
+
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::044854092841:user/krishna"
+      username = "krishna"
+      groups   = ["system:masters"]
+    }
+  ]
 }
 
 module "argocd" {
