@@ -13,7 +13,7 @@ module "iam" {
 }
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.21.0"
+  version = "20.8.4"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
@@ -32,18 +32,16 @@ module "eks" {
       max_size       = 3
     }
   }
+  manage_aws_auth_configmap = true
 
- manage_aws_auth_configmap = true
-
-aws_auth_users = [
-  {
-    userarn  = "arn:aws:iam::044854092841:user/krishna"
-    username = "krishna"
-    groups   = ["system:masters"]
-  }
-]
-
-
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::044854092841:user/krishna"
+      username = "krishna"
+      groups   = ["system:masters"]
+    }
+  ]
+}
   tags = {
     Environment = "dev"
     Project     = "gitops"
