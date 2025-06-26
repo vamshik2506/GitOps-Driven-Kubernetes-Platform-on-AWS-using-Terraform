@@ -48,4 +48,3 @@ terraform-eks-platform/
 - IRSA-secured service accounts
 - TLS via ACM + custom domain
 - CI/CD integration with auto deploy
-
