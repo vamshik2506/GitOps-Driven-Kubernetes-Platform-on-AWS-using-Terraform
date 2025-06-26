@@ -13,28 +13,33 @@ module "iam" {
 }
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.21.0"
+  version = "20.8.4"
 
-  cluster_name = var.cluster_name
-  cluster_version = var.cluster_version
-  subnet_ids = module.vpc.public_subnet_ids
-  vpc_id = module.vpc.vpc_id
+  cluster_name    = "gitops-eks-cluster"
+  cluster_version = "1.29"
+  subnet_ids      = module.vpc.private_subnets
+  vpc_id          = module.vpc.vpc_id
 
-  manage_aws_auth_configmap = true
+  enable_irsa = true
 
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::044854092841:user/krishna"
-      username = "krishna"
-      groups   = ["system:masters"]
-    }
-  ]
+  authentication_mode = "API_AND_CONFIG_MAP"
 
   eks_managed_node_groups = {
     default = {
       instance_types = ["t3.medium"]
-      desired_capacity = 2
+      min_size       = 1
+      max_size       = 2
+      desired_size   = 1
+
+      iam_role_additional_policies = {
+        ssm = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      }
     }
+  }
+
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
   }
 }
 
