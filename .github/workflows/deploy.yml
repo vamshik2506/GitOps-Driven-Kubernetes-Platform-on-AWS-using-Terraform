@@ -32,15 +32,16 @@ jobs:
         run: terraform init
         working-directory: terraform
 
-      - name: 🚀 Terraform Apply (Full stack)
-        run: terraform apply -auto-approve
+      - name: 🚀 Terraform Apply (Infra only)
+        run: |
+          terraform apply -auto-approve \
+            -target=module.vpc \
+            -target=module.iam \
+            -target=module.eks
         working-directory: terraform
 
       - name: ☁️ Update kubeconfig for EKS
         run: aws eks --region ap-south-1 update-kubeconfig --name gitops-eks-cluster
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: ✅ Verify EKS Nodes
         run: kubectl get nodes
@@ -61,6 +62,20 @@ jobs:
 
       - name: ☁️ Update kubeconfig for EKS
         run: aws eks --region ap-south-1 update-kubeconfig --name gitops-eks-cluster
+
+      - name: ⏳ Wait for EKS Nodes to be Ready
+        run: |
+          for i in {1..30}; do
+            kubectl get nodes && break || sleep 10
+          done
+
+      - name: 📦 Terraform Init
+        run: terraform init
+        working-directory: terraform
+
+      - name: 🚀 Terraform Apply (GitOps + Monitoring)
+        run: terraform apply -auto-approve
+        working-directory: terraform
 
       - name: 🔎 Verify ArgoCD / Deploy K8s Resources
         run: kubectl get all -n argocd
